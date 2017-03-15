@@ -44,7 +44,4 @@ public class Letter implements Comparable{
 	public String toString() {
 		return "weight: "+weight+", "+"char: "+character;
 	}
-	
-	
-
 }

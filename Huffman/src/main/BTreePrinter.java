@@ -28,9 +28,9 @@ class BTreePrinter {
         List<Node<T>> newNodes = new ArrayList<Node<T>>();
         for (Node<T> node : nodes) {
             if (node != null) {
-                System.out.print(node.data);
-                newNodes.add(node.left);
-                newNodes.add(node.right);
+                System.out.print(node.frequency);
+                newNodes.add((Node<T>) node.left);
+                newNodes.add((Node<T>) node.right);
             } else {
                 newNodes.add(null);
                 newNodes.add(null);
@@ -79,7 +79,7 @@ class BTreePrinter {
         if (node == null)
             return 0;
 
-        return Math.max(BTreePrinter.maxLevel(node.left), BTreePrinter.maxLevel(node.right)) + 1;
+        return Math.max(BTreePrinter.maxLevel((Node<T>) node.left), BTreePrinter.maxLevel((Node<T>) node.right)) + 1;
     }
 
     private static <T> boolean isAllElementsNull(List<T> list) {

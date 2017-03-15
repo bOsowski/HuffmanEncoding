@@ -2,6 +2,7 @@ package main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class Loader {
@@ -12,6 +13,7 @@ public class Loader {
 		readTextFile(new File("textFile.txt"));
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void readTextFile(File file){
 		String line;
 		
@@ -34,16 +36,17 @@ public class Loader {
 				}
 			}
 			scanner.close();
+			Collections.sort(letters);
 		} catch (FileNotFoundException e) {
 			System.err.print("File not found!");
 		}
 	}
 
-	public ArrayList<Letter> getLines() {
+	public ArrayList<Letter> getLetters() {
 		return letters;
 	}
 
-	public void setLines(ArrayList<Letter> lines) {
-		this.letters = lines;
+	public void setLetters(ArrayList<Letter> letter) {
+		this.letters = letter;
 	}
 }

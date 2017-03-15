@@ -1,19 +1,29 @@
 package main;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class Driver {
 
+	Loader loader;
+	
 	public Driver() {
-		Loader loader = new Loader();
-		BinaryTree tree = new BinaryTree();
-		for(int i =0; i<loader.getLines().size(); i++){
-			System.out.println("Letter"+i+" = "+loader.getLines().get(i).getCharacter()+"   weight = "+ loader.getLines().get(i).getWeight());
-			tree.addNode(loader.getLines().get(i));
+		loader = new Loader();
+		
+		
+		
+		//print out the letters and weights.
+		for(int i =0; i<loader.getLetters().size(); i++){
+			System.out.println("Letter"+i+" = "+loader.getLetters().get(i).getCharacter()+"   weight = "+ loader.getLetters().get(i).getWeight());
 		}
-		BTreePrinter printer = new BTreePrinter();
-		printer.printNode(tree.root);
-		
-		
+		BinaryTree tree = new BinaryTree();
+		//BTreePrinter printer = new BTreePrinter();
+		//printer.printNode(tree.root);
+		System.out.println("root = " + tree.root.frequency);
 	}
+	
+	
+	
 
 	public static void main(String[] args) {
 		new Driver();
