@@ -1,92 +1,56 @@
 package main;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.PriorityQueue;
 
 public class BinaryTree {
-
-	Loader loader = new Loader();
-	ArrayList<Letter> letters;
-	Node firstNode;
-	Node root;
+	private PriorityQueue<Node> queue = new PriorityQueue<Node>();
+	static protected HashMap<Character, String> letters = new HashMap<Character, String>();
+	protected Node root;
+	protected String encoding;
 	
 	public BinaryTree() {
 		createTree();
+		createEncodings(root, "");
+		encoding = encodeText(Loader.text);	
 	}
-	
-	@SuppressWarnings("rawtypes")
-	public void createTree(){
-		letters = loader.getLetters();
-		firstNode = createFirstNode();//first node is the node on the left, big node.
-		Node lastNode = createLastNode();//node at the right, smallest node.
 
-		
-		combineNodes(lastNode);	
+
+	public void createTree(){
+		queue.addAll(Loader.lettersWithFrequencies.values());
+		while(queue.size() > 1){
+			Node firstNode = queue.poll();
+			Node parentNode = new Node(firstNode.frequency + queue.peek().frequency, firstNode, queue.poll());
+			queue.offer(parentNode);
+		}
+		root = queue.poll();
 	}
 	
-	//recursive function that will combine the nodes from lightest to heaviest till all characters are used.
-	//If all the characters are usedm make a root node combining the first nodes and the other nodes.
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void combineNodes(Node node){
-		Node newNode = new Node(node.frequency + letters.get(0).getWeight(), letters.get(0),node);
-		System.out.println("creating node with freq "+newNode.frequency+" and letter "+newNode.left);
-		letters.remove(0);
-		if(letters.size() > 0){
-			combineNodes(newNode);
+	public void createEncodings(Node node, String frequency){
+		String encoding = frequency;
+		if(node.left != null){
+			String encodingLeft = encoding + '0';
+			createEncodings(node.left, encodingLeft);
+		}
+		if(node.right != null){
+			String encodingRight = encoding +'1';
+			createEncodings(node.right, encodingRight);
 		}
 		else{
-			root = new Node(firstNode.frequency+newNode.frequency, firstNode, newNode);
+			System.out.println("character = "+node.character+ " encoding = "+ encoding);
+			letters.put(node.character, encoding);
 		}
 	}
 	
-	//returns a node containing the lightest letters. its data is the frequency of the 2 letters.
-	private Node createLastNode(){
-		Letter smallestLetter = letters.get(0);
-		System.out.println("creating first smallest letter.. adding "+ letters.get(0));
-		letters.remove(0);
-		Letter secondSmallestLetter = letters.get(0);
-		System.out.println("creating second smallest letter.. adding "+ letters.get(0));
-		letters.remove(0);
-		int frequency = smallestLetter.getWeight() + secondSmallestLetter.getWeight();
+	//change to string return later
+	public String encodeText(String text){
 		
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		Node lastNode = new Node(frequency, smallestLetter, secondSmallestLetter);
-		System.out.println("lastNode created. = " + lastNode+"\n");
-		return lastNode;
-	}	
-	
-	//returns a node containing the second and third heaviest letters. its data is the frequency of the 2 letters.
-	private Node createFirstNode(){
-		Letter secondBiggestLetter = letters.get(letters.size()-2);
-		System.out.println("creating first biggest letter.. adding "+ letters.get(letters.size()-2));
-		letters.remove(letters.size()-2);
-		Letter thirdBiggerLetter = letters.get(letters.size()-2);
-		System.out.println("creating first biggest letter.. adding "+ letters.get(letters.size()-2));
-		letters.remove(letters.size()-2);
-
-		int frequency = secondBiggestLetter.getWeight() + thirdBiggerLetter.getWeight();
-		
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Node firstNode = new Node(frequency, thirdBiggerLetter, secondBiggestLetter);
-		System.out.println("firstNode  = " + firstNode+"\n");
-		return firstNode;
-	}
-
-	
-	class Node<T> {
-	    T left, right;
-	    int frequency;
-	    
-
-	    public Node(int frequency, T left, T right) {
-	        this.frequency = frequency;
-	        this.left = left;
-	        this.right = right;
-	    }
-
-		@Override
-		public String toString() {
-			//return "Node [left=" + left + ", right=" + right + ", data=" + data + "]";
-			return "[ = "+frequency+" left = "+left+" right = "+right+"]";
+		String decodedText = "";
+		System.out.println("length = "+text.length());
+		for(int i = 0; i < text.length();i++){
+			decodedText = decodedText + letters.get(text.charAt(i));
 		}
+		return decodedText; 
 	}
+
 }

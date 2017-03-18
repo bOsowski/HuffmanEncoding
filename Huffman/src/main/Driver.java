@@ -1,25 +1,14 @@
 package main;
 
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class Driver {
-
 	Loader loader;
 	
 	public Driver() {
-		loader = new Loader();
-		
-		
-		
-		//print out the letters and weights.
-		for(int i =0; i<loader.getLetters().size(); i++){
-			System.out.println("Letter"+i+" = "+loader.getLetters().get(i).getCharacter()+"   weight = "+ loader.getLetters().get(i).getWeight());
-		}
-		BinaryTree tree = new BinaryTree();
-		//BTreePrinter printer = new BTreePrinter();
-		//printer.printNode(tree.root);
-		System.out.println("root = " + tree.root.frequency);
+		loader = new Loader();	//loads from the file and processes the text into a Hashmap of nodes
+		BinaryTree tree = new BinaryTree(); //creates a binary tree based on frequency of each node
+		System.out.println("Text: " + Loader.text);
+		System.out.println("Encoding: " + tree.encoding );
 	}
 	
 	

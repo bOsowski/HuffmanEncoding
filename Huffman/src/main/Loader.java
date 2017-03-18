@@ -1,52 +1,53 @@
 package main;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Loader {
 
-	private ArrayList<Letter> letters = new ArrayList<Letter>();
+	static protected HashMap<Character,Node> lettersWithFrequencies = new HashMap<Character,Node>();
+	static protected String text = "";
 	
 	public Loader() {
 		readTextFile(new File("textFile.txt"));
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public void readTextFile(File file){
 		String line;
 		
 		try {
 			Scanner scanner = new Scanner(file);
 			while(scanner.hasNext()){
-				line = scanner.nextLine();	
+				line = scanner.nextLine();
+				text = text + line;
 				for(int i =0; i<line.length(); i++){
-					boolean contains = false;
-						for(Letter letter: letters){
-							if(letter.getCharacter() == line.charAt(i)){//If letters contains the letter
-								letter.addWeight();//add the weight to the proper letter in letters
-								contains = true;
-								break;
+							if(lettersWithFrequencies.containsKey(line.charAt(i))){//If letters contains the letter
+								lettersWithFrequencies.get(line.charAt(i)).frequency++;//add the weight to the proper letter in letters
 							}
-						}
-					if(!contains){//if the letter in word isn't in letters, add it to letters.
-						letters.add(new Letter(line.charAt(i)));
-					}
+							else{//if the letter in word isn't in letters, add it to letters.
+								lettersWithFrequencies.put(line.charAt(i), new Node(1,line.charAt(i),null, null));
+							}
 				}
+				/*if(scanner.hasNextLine()){	//bug, input keeps getting null for the new line characters.
+					text = text + "\n";
+					if(!lettersWithFrequencies.containsKey('n') && !lettersWithFrequencies.containsKey('/')){
+						
+						lettersWithFrequencies.put('\\',new Node(1,'\\',null, null));
+						lettersWithFrequencies.put('n',new Node(1,'n',null, null));
+						System.out.println("Scanner has next line and there are no letters containing n");
+					}
+					else{
+						lettersWithFrequencies.get('\\').frequency++;
+						lettersWithFrequencies.get('n').frequency++;
+						System.out.println("Scanner has next line and there are letters containing n");
+					}
+				}*/
 			}
 			scanner.close();
-			Collections.sort(letters);
 		} catch (FileNotFoundException e) {
 			System.err.print("File not found!");
 		}
 	}
 
-	public ArrayList<Letter> getLetters() {
-		return letters;
-	}
-
-	public void setLetters(ArrayList<Letter> letter) {
-		this.letters = letter;
-	}
 }
