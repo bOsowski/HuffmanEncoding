@@ -7,7 +7,7 @@ public class BinaryTree {
 	private PriorityQueue<Node> queue = new PriorityQueue<Node>();
 	static protected HashMap<Character, String> letters = new HashMap<Character, String>();
 	protected Node root;
-	protected String encoding;
+	String encoding;
 	
 	public BinaryTree() {
 		createTree();
