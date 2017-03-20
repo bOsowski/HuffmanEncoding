@@ -12,14 +12,14 @@ public class Driver {
 		tree = new BinaryTree(); //creates a binary tree based on frequency of each node
 		System.out.println("Text: " + Loader.text);
 		System.out.println("Encoding: " + tree.encoding );
-		writeCompressionToFile("compressed", "UTF-8");
+		writeCompressionToFile("compressed", "UTF-8", tree.encoding);
 
 	}
 	
-	private void writeCompressionToFile(String fileName, String fileType){
+	private void writeCompressionToFile(String fileName, String fileType, String content){
 		try{
 		    PrintWriter writer = new PrintWriter(fileName, fileType);
-		    writer.print(tree.encoding);
+		    writer.print(content);
 		    writer.close();
 		} catch (IOException e) {
 		  System.err.println("Unable to write to file.");
