@@ -49,7 +49,7 @@ public class BinaryTree {
 			createEncodings(node.right, encodingRight);
 		}
 		else{
-		//	System.out.println("character = "+node.character+ " encoding = "+ encoding);
+			System.out.println("character = "+node.character+ " encoding = "+ encoding);
 			letters.put(node.character, encoding);
 		}
 	}

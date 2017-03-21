@@ -27,7 +27,6 @@ public class Driver {
 		for(int i = 0, power = binary.length()-1; i < binary.length(); i++, power --){
 			if(binary.charAt(i) == '1'){
 				number += Math.pow(2, power);
-				System.out.println("power = "+ Math.pow(2, power)+"  power = "+ power);
 			}
 		}
 		int integer = (char) number;
@@ -59,14 +58,14 @@ public class Driver {
 			System.out.print("Choice>> ");
 
 			int choice = scanner.nextInt();
+			System.out.println();
 			scanner.close();
 			switch(choice){
 			case 1:
 				encode();
 				break;
 			case 2:
-				System.out.println("Not yet implemented.");
-				//decode();
+				decode();
 				break;
 			case 0:
 				System.out.println("Exitting..");
@@ -83,8 +82,7 @@ public class Driver {
 	}
 	
 	private void decode() {
-			// TODO Auto-generated method stub
-			
+		loader = new Loader("decode");
 	}
 
 	private void encode(){
@@ -92,7 +90,7 @@ public class Driver {
 		tree = new BinaryTree(); //creates a binary tree based on frequency of each node
 		System.out.println("Text: " + Loader.text);
 		System.out.println("Encoding: " + tree.encoding );
-		writeEncodingToFile("compressed", "UTF-8", tree.encoding, "The encoding has been saved.");
+		writeEncodingToFile("compressed.brt", "UTF-8", tree.encoding, "The encoding has been saved.");
 	}
 	
 	/**
@@ -112,9 +110,9 @@ public class Driver {
 		    
 		    for (Map.Entry<Character, String> entry : BinaryTree.letters.entrySet())
 		    {
-		        writer.println(entry.getValue() + charToBinary(entry.getKey()));	//prints the 8 bit character in binary and then the encoding for it.
+		        writer.println(charToBinary(entry.getKey()) + entry.getValue());	//prints the 8 bit character in binary and then the encoding for it.
 		    }
-		    writer.println("-");
+		    writer.println(newLineSymbol);
 		    writer.print(content);
 		    writer.close();
 			System.out.println(message);

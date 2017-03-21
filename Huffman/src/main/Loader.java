@@ -19,8 +19,58 @@ public class Loader {
 			getCharsAndFrequencies(new File(getFile("Text Files", "txt")));
 		}
 		else if(action.equals("decode")){
-			
+			getCharactersAndCode(new File(getFile("Compressed Files", "brt")));
 		}
+	}
+	
+	private void getCharactersAndCode(File file){
+		HashMap<String, Character> lettersAndEncodings = new HashMap<String,Character>();
+		String line = "";
+		try {
+			Scanner scanner = new Scanner(file);
+			
+			while(!line.contains(Driver.newLineSymbol+"")){
+				//System.out.println("LINE = " + line);
+				line = scanner.nextLine();
+				if(line.length() > 1){
+					String charInBin = "";
+					for(int i = 0; i<8; i++){
+						charInBin += line.charAt(i);
+					}
+					char character = Driver.binaryToChar(charInBin);
+					String encoding = "";
+					
+					for(int i = 8; i<line.length(); i++){
+						encoding += line.charAt(i);
+					}
+					//System.out.println("Character = "+character+ " encoding = "+encoding);
+					lettersAndEncodings.put(encoding, character);	
+				}
+			}
+			System.out.println("Encoding = ");
+			while(scanner.hasNext()){
+				line = scanner.nextLine();
+				System.out.println(decodeLine(line, lettersAndEncodings));
+			}
+			
+			scanner.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private String decodeLine(String Encodedline, HashMap<String,Character> map){
+		String encoding = "";
+		String decodedLine = "";
+		for(int i = 0; i<Encodedline.length(); i++){
+			encoding += Encodedline.charAt(i);
+			if(map.containsKey(encoding)){
+				decodedLine += map.get(encoding);
+				encoding = "";
+			}
+		}
+		return decodedLine;
+		
 	}
 	
 	/*public File pickAFile(String defaultFilePath, String fileType){
