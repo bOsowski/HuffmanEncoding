@@ -4,16 +4,68 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 public class Loader {
 
 	static protected HashMap<Character,Node> lettersWithFrequencies = new HashMap<Character,Node>();
-	static protected String text = "";
+	static String text = "";
 	
-	public Loader() {
-		readTextFile(new File("textFile.txt"));
+	public Loader(String action){
+		if(action.equals("encode")){
+			getCharsAndFrequencies(new File(getFile("Text Files", "txt")));
+		}
+		else if(action.equals("decode")){
+			
+		}
 	}
+	
+	/*public File pickAFile(String defaultFilePath, String fileType){
+		JFileChooser fc = new JFileChooser();
+		System.out.println("1");
+		fc.setCurrentDirectory(new File(defaultFilePath));
+		System.out.println("2");
+		int returnVal = fc.showOpenDialog(null);	//BUG HERE WHEN USING SCANNER.NEXT..
+		System.out.println("3");
+		
+		if(returnVal == JFileChooser.APPROVE_OPTION){
+			File file = fc.getSelectedFile(); 
+			if(file.getName().charAt(file.getName().length()-1) == fileType.charAt(0) && file.getName().charAt(file.getName().length()-2) == fileType.charAt(1) && file.getName().charAt(file.getName().length()-3) == fileType.charAt(2)){
+				return file;
+			}
+			else{
+				System.out.println("Wrong file extension! Pick a ."+ fileType+" file!");
+				return pickAFile(defaultFilePath, fileType);	
+			}
+		}
+		System.out.println("No file chosen.");
+		System.exit(0);
+		return null;
+	}*/
 
-	public void readTextFile(File file){
+	/**@author Oleksandr Kononov
+	 * @return a chosed text file path.
+	 */
+	private String getFile(String fileType, String fileExtension){
+		String filePath = "";
+		JFrame jf = new JFrame(); // added
+        jf.setAlwaysOnTop( true ); // added
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File("."));
+        FileFilter filter = new FileNameExtensionFilter(fileType,fileExtension);
+        fileChooser.setFileFilter(filter);
+        fileChooser.showOpenDialog( jf );  // changed
+        filePath = fileChooser.getSelectedFile().getPath();
+        jf.dispose(); // added
+        
+        return filePath;
+	}
+	
+	
+	public void getCharsAndFrequencies(File file){
 		String line;
 		
 		try {
@@ -29,20 +81,11 @@ public class Loader {
 								lettersWithFrequencies.put(line.charAt(i), new Node(1,line.charAt(i),null, null));
 							}
 				}
-				/*if(scanner.hasNextLine()){	//bug, input keeps getting null for the new line characters.
-					text = text + "\n";
-					if(!lettersWithFrequencies.containsKey('n') && !lettersWithFrequencies.containsKey('/')){
-						
-						lettersWithFrequencies.put('\\',new Node(1,'\\',null, null));
-						lettersWithFrequencies.put('n',new Node(1,'n',null, null));
-						System.out.println("Scanner has next line and there are no letters containing n");
-					}
-					else{
-						lettersWithFrequencies.get('\\').frequency++;
-						lettersWithFrequencies.get('n').frequency++;
-						System.out.println("Scanner has next line and there are letters containing n");
-					}
-				}*/
+				
+				//adding new lines to the text
+				if(scanner.hasNextLine()){
+					text = text + Driver.newLineSymbol;
+				}
 			}
 			scanner.close();
 		} catch (FileNotFoundException e) {

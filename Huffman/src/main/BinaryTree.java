@@ -12,7 +12,19 @@ public class BinaryTree {
 	public BinaryTree() {
 		createTree();
 		createEncodings(root, "");
-		encoding = encodeText(Loader.text);	
+		encoding = encodeText(Loader.text);
+
+		//the below swaps the Driver.newLineSymbol characters from the original text to a new line character
+		String newText = "";
+		for(int i = 0; i<Loader.text.length(); i++){
+			if(Loader.text.charAt(i) != Driver.newLineSymbol){
+				newText += Loader.text.charAt(i);
+			}
+			else{
+				newText += "\n";
+			}
+		}
+		Loader.text = newText;
 	}
 
 
@@ -37,18 +49,23 @@ public class BinaryTree {
 			createEncodings(node.right, encodingRight);
 		}
 		else{
-			System.out.println("character = "+node.character+ " encoding = "+ encoding);
+		//	System.out.println("character = "+node.character+ " encoding = "+ encoding);
 			letters.put(node.character, encoding);
 		}
 	}
 	
-	//change to string return later
 	public String encodeText(String text){
 		
 		String decodedText = "";
 		System.out.println("length = "+text.length());
 		for(int i = 0; i < text.length();i++){
-			decodedText = decodedText + letters.get(text.charAt(i));
+			//
+			if(Driver.newLineSymbol == text.charAt(i)){//makes a new line in the encoding where there is a new line in the text.
+				decodedText = decodedText + "\n";
+			}
+			else{
+				decodedText = decodedText + letters.get(text.charAt(i));
+			}
 		}
 		return decodedText; 
 	}
