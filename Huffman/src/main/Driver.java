@@ -1,19 +1,14 @@
 package main;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.InputMismatchException;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Driver {
-	final static char newLineSymbol = '~';
+	final static char sectionDividerSymbol = '~';
 	Loader loader;
 	BinaryTree tree;
 	
 	public Driver() {
-		//System.out.println(charToBinary('J'));
-		//System.out.println(binaryToChar("01001010"));
 		menu();
 	}
 	
@@ -32,24 +27,10 @@ public class Driver {
 		int integer = (char) number;
 		return (char) integer;
 	}
-	
-	/**
-	 * 
-	 * @param an ASCII character
-	 * @return 8 digit binary code representing the ASCII character.
-	 */
-	public static String charToBinary(char character){
-		String binary = Integer.toBinaryString(character);	
-		//this part adds extra dummy bytes so the number of bytes is always 8
-		for(int i = binary.length(); i<8; i++){
-			binary = "0"+binary;
-		}
-		return binary;
-	}
  
-	
 	public void menu(){
 		try{
+			@SuppressWarnings("resource")
 			Scanner scanner = new Scanner(System.in);
 			
 			System.out.println("1) Compress a text file.");
@@ -59,13 +40,15 @@ public class Driver {
 
 			int choice = scanner.nextInt();
 			System.out.println();
-			scanner.close();
+			//scanner.close();	//creates a bug when trying to open up a menu again.
 			switch(choice){
 			case 1:
 				encode();
+				new Driver();
 				break;
 			case 2:
 				decode();
+				new Driver();
 				break;
 			case 0:
 				System.out.println("Exitting..");
@@ -83,43 +66,17 @@ public class Driver {
 	
 	private void decode() {
 		loader = new Loader("decode");
+		System.out.println();
+		System.out.println();
 	}
 
 	private void encode(){
 		loader = new Loader("encode");	//loads from the file and processes the text into a Hashmap of nodes
-		tree = new BinaryTree(); //creates a binary tree based on frequency of each node
-		System.out.println("Text: " + Loader.text);
-		System.out.println("Encoding: " + tree.encoding );
-		writeEncodingToFile("compressed.brt", "UTF-8", tree.encoding, "The encoding has been saved.");
+		tree = new BinaryTree(loader.lettersWithFrequencies, loader.file); //creates a binary tree based on frequency of each node
+		System.out.println("It took "+(((System.currentTimeMillis() - loader.timeBefore)-tree.timeToDiscount)/1000.0)+" seconds to encode the file.\n\n");
 	}
 	
-	/**
-	 * 
-	 * @param fileName
-	 * Name of the file to be written.
-	 * @param fileType
-	 * Type of the file to be written.
-	 * @param content
-	 * The encoding.
-	 * @param message
-	 * Message to display in case of a failure.
-	 */
-	private void writeEncodingToFile(String fileName, String fileType, String content, String message){
-		try{
-		    PrintWriter writer = new PrintWriter(fileName, fileType);
-		    
-		    for (Map.Entry<Character, String> entry : BinaryTree.letters.entrySet())
-		    {
-		        writer.println(charToBinary(entry.getKey()) + entry.getValue());	//prints the 8 bit character in binary and then the encoding for it.
-		    }
-		    writer.println(newLineSymbol);
-		    writer.print(content);
-		    writer.close();
-			System.out.println(message);
-		} catch (IOException e) {
-		  System.err.println("Unable to write to file.");
-		}
-	}
+
 	
 
 	public static void main(String[] args) {

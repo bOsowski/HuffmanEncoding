@@ -10,55 +10,80 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Loader {
-
-	static protected HashMap<Character,Node> lettersWithFrequencies = new HashMap<Character,Node>();
-	static String text = "";
+	HashMap<Character,Node> lettersWithFrequencies;
+	long timeBefore;
+	File file;
 	
 	public Loader(String action){
 		if(action.equals("encode")){
-			getCharsAndFrequencies(new File(getFile("Text Files", "txt")));
+			file = new File(getFile("Text Files", "txt"));
+			getCharsAndFrequencies(file);
 		}
 		else if(action.equals("decode")){
-			getCharactersAndCode(new File(getFile("Compressed Files", "brt")));
+			decodeFile(new File(getFile("Compressed Files", "brt")));
 		}
 	}
 	
-	private void getCharactersAndCode(File file){
+	
+	/**
+	 * Checks if the file is supported, then creates a Hashmap of letters and their encodings taken from the start of the file.
+	 * After the newLineSymbol delimeter is encountered, it proceeds to decode the text.
+	 * @param appropriate file to be decoded.
+	 */
+	private void decodeFile(File file){
+		long timeBefore = System.currentTimeMillis();
 		HashMap<String, Character> lettersAndEncodings = new HashMap<String,Character>();
 		String line = "";
 		try {
 			Scanner scanner = new Scanner(file);
-			
-			while(!line.contains(Driver.newLineSymbol+"")){
-				//System.out.println("LINE = " + line);
-				line = scanner.nextLine();
-				if(line.length() > 1){
-					String charInBin = "";
-					for(int i = 0; i<8; i++){
-						charInBin += line.charAt(i);
+			//checking if the file is supported.
+			if(!scanner.nextLine().equals("00001100101011011101000010011001")){
+				System.out.println("This file is not in the supported format.");
+				scanner.close();
+				return;
+			}
+			else{
+				System.out.println("Decoding the file..");
+				while(!line.contains(Driver.sectionDividerSymbol+"")){
+					//System.out.println("LINE = " + line);
+					line = scanner.nextLine();
+					if(line.length() > 1){
+						String charInBin = "";
+						for(int i = 0; i<8; i++){
+							charInBin += line.charAt(i);
+						}
+						char character = Driver.binaryToChar(charInBin);
+						String encoding = "";
+						
+						for(int i = 8; i<line.length(); i++){
+							encoding += line.charAt(i);
+						}
+						//System.out.println("Character = "+character+ " encoding = "+encoding);
+						lettersAndEncodings.put(encoding, character);	
 					}
-					char character = Driver.binaryToChar(charInBin);
-					String encoding = "";
-					
-					for(int i = 8; i<line.length(); i++){
-						encoding += line.charAt(i);
-					}
-					//System.out.println("Character = "+character+ " encoding = "+encoding);
-					lettersAndEncodings.put(encoding, character);	
 				}
+				System.out.println("Encoding = ");
+				while(scanner.hasNext()){
+					line = scanner.nextLine();
+					System.out.println(decodeLine(line, lettersAndEncodings));
+				}
+				long timeAfter = System.currentTimeMillis();
+				System.out.println("It took "+((timeAfter - timeBefore)/1000.0)+" seconds to decode the file.");
+				scanner.close();
 			}
-			System.out.println("Encoding = ");
-			while(scanner.hasNext()){
-				line = scanner.nextLine();
-				System.out.println(decodeLine(line, lettersAndEncodings));
-			}
-			
-			scanner.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	/** 
+	 * @param
+	 * encoded line
+	 * @param
+	 * map of characters with their encoding as a key
+	 * @return
+	 * the decoded line
+	 */
 	private String decodeLine(String Encodedline, HashMap<String,Character> map){
 		String encoding = "";
 		String decodedLine = "";
@@ -114,15 +139,21 @@ public class Loader {
         return filePath;
 	}
 	
-	
+	/**
+	 * Gets the frequencies of each unique character in the given file and
+	 * puts them in a hashmap.
+	 * Creates a text with a line symbol in place of a new line character.
+	 * @param file to be encoded.
+	 */
 	public void getCharsAndFrequencies(File file){
+		timeBefore = System.currentTimeMillis();
+		lettersWithFrequencies = new HashMap<Character,Node>();
 		String line;
 		
 		try {
 			Scanner scanner = new Scanner(file);
 			while(scanner.hasNext()){
 				line = scanner.nextLine();
-				text = text + line;
 				for(int i =0; i<line.length(); i++){
 							if(lettersWithFrequencies.containsKey(line.charAt(i))){//If letters contains the letter
 								lettersWithFrequencies.get(line.charAt(i)).frequency++;//add the weight to the proper letter in letters
@@ -134,7 +165,6 @@ public class Loader {
 				
 				//adding new lines to the text
 				if(scanner.hasNextLine()){
-					text = text + Driver.newLineSymbol;
 				}
 			}
 			scanner.close();
