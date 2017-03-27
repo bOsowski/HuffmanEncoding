@@ -66,13 +66,16 @@ public class BinaryTree {
 		timeToDiscount = System.currentTimeMillis() - timeBefore;
 		
 	    PrintWriter writer = new PrintWriter(filename+".brt", "UTF-8");
-	    writer.println("00001100101011011101000010011001");//identifier
+	    writer.print("00001100101011011101000010011001");//identifier
+	    String lastEntry = "";
 	    for (Map.Entry<Character, String> entry : letters.entrySet())
 	    {
 	    	String charInBinary = charToBinary(entry.getKey());
-	        writer.println(charInBinary + entry.getValue());	//prints the 8 bit character in binary and then the encoding for it.
+	        writer.print(charInBinary + entryLengthToBinary(entry)+entry.getValue());	//prints the 8 bit character in binary and then the encoding for it.
+	        lastEntry = charInBinary + entryLengthToBinary(entry)+entry.getValue();
 	    }
-	    writer.println(Driver.sectionDividerSymbol);	//separate the encoding from character tree
+	    writer.print(lastEntry);
+	   // writer.println(Driver.sectionDividerSymbol);	//separate the encoding from character tree
 		scanner = new Scanner(file);
 		System.out.println("length = "+file.length());
 		long fileLengthInBits = file.length()*8;
@@ -83,7 +86,10 @@ public class BinaryTree {
 			for(char character: line.toCharArray()){
 				writer.print(letters.get(character));
 			}
-			writer.println();
+			if(scanner.hasNextLine()){
+				writer.print(letters.get(Driver.sectionDividerSymbol));
+			}
+			//writer.println();
 		}
 	    writer.close();
 	    scanner.close();
@@ -95,6 +101,20 @@ public class BinaryTree {
 	    System.out.println("The size of the encoding in bits = "+encodedFileLength);
 	    System.out.println("Percentage saved = "+percentageSaved);
 		System.out.println("The encoding has been saved.");
+	}
+	
+	/**
+	 * 
+	 * @param a map entry containing the character as the key and the encoding as the 
+	 * @return the map entry in binary of length of 6. 
+	 */
+	public static String entryLengthToBinary(Map.Entry<Character, String> entry){
+		String baseTwo = Integer.toString(entry.getValue().length(), 2);
+		int length = baseTwo.length();
+		for(int i = length-5; i<0; i++){
+			baseTwo = "0"+baseTwo;
+		}
+		return baseTwo;
 	}
 	
 	/**

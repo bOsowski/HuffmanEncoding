@@ -1,6 +1,8 @@
 package main;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -33,44 +35,74 @@ public class Loader {
 	private void decodeFile(File file){
 		long timeBefore = System.currentTimeMillis();
 		HashMap<String, Character> lettersAndEncodings = new HashMap<String,Character>();
-		String line = "";
+		//String line = "";
 		try {
 			Scanner scanner = new Scanner(file);
 			//checking if the file is supported.
-			if(!scanner.nextLine().equals("00001100101011011101000010011001")){
-				System.out.println("This file is not in the supported format.");
-				scanner.close();
-				return;
+			String fileCheck = "00001100101011011101000010011001";
+			char[] bits = scanner.next().toCharArray();
+			int currentBitIndex = 0;
+			for(currentBitIndex = 0; currentBitIndex<32; currentBitIndex++){
+				if(fileCheck.charAt(currentBitIndex) != bits[currentBitIndex]){
+					System.out.println("The file specified is not supported.");
+					scanner.close();
+					return;
+				}
 			}
-			else{
-				System.out.println("Decoding the file..");
-				while(!line.contains(Driver.sectionDividerSymbol+"")){
-					//System.out.println("LINE = " + line);
-					line = scanner.nextLine();
-					if(line.length() > 1){
-						String charInBin = "";
-						for(int i = 0; i<8; i++){
-							charInBin += line.charAt(i);
-						}
-						char character = Driver.binaryToChar(charInBin);
-						String encoding = "";
-						
-						for(int i = 8; i<line.length(); i++){
-							encoding += line.charAt(i);
-						}
-						//System.out.println("Character = "+character+ " encoding = "+encoding);
+			System.out.println("Decoding the file..");
+			while(currentBitIndex < bits.length){
+					String charInBin = "";
+					for(int j = currentBitIndex; currentBitIndex<j+8; currentBitIndex++){
+						charInBin += bits[currentBitIndex];
+					}
+					char character = Driver.binaryToChar(charInBin);
+			//		System.out.print("character = " + character+"   ");
+					String intInBin = "";
+					for(int j = currentBitIndex; currentBitIndex<j+5; currentBitIndex++){
+						intInBin += bits[currentBitIndex];
+					}
+					int huffmanCharBitLength = Integer.parseInt(intInBin, 2);	
+			//		System.out.print("huffmanCharBitLength = "+ huffmanCharBitLength+"\n");
+					String encoding = "";		
+					for(int j = currentBitIndex; currentBitIndex<j + huffmanCharBitLength; currentBitIndex++){
+						encoding += bits[currentBitIndex];
+					}
+
+					//stop reading in the lettters and encodings and start reading the text if the encoding has been already read, eg. the end of the section.
+					if(lettersAndEncodings.containsKey(encoding)){
+						break;
+					}
+					else{
 						lettersAndEncodings.put(encoding, character);	
 					}
-				}
-				System.out.println("Encoding = ");
-				while(scanner.hasNext()){
-					line = scanner.nextLine();
-					System.out.println(decodeLine(line, lettersAndEncodings));
-				}
-				long timeAfter = System.currentTimeMillis();
-				System.out.println("It took "+((timeAfter - timeBefore)/1000.0)+" seconds to decode the file.");
-				scanner.close();
+			}	
+			//System.out.println("Decoding = ");
+			System.out.println("Would you like the decoding to be 1)printed in the console or 2)written to a file?");
+			
+			@SuppressWarnings("resource")
+			Scanner sc = new Scanner(System.in);
+			long timeBeforeInput = System.currentTimeMillis();
+			int choice = sc.nextInt();
+			long timeToDeduct = System.currentTimeMillis() - timeBeforeInput;
+			
+			if(choice == 1){
+				System.out.println("Printing the encoding: ");
+				printlnDecoding(bits, lettersAndEncodings, currentBitIndex);
 			}
+			else{
+				try {
+					System.out.println("Saving decoding to file, please wait..");
+					writeDecodingToFile(bits, lettersAndEncodings, currentBitIndex);
+					System.out.println("Decoding sucessfully saved. filename = DECOMPRESSED.txt");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			long timeAfter = System.currentTimeMillis();
+			System.out.println("It took "+((timeAfter - timeBefore - timeToDeduct)/1000.0)+" seconds to decode the file.");
+			scanner.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -84,18 +116,44 @@ public class Loader {
 	 * @return
 	 * the decoded line
 	 */
-	private String decodeLine(String Encodedline, HashMap<String,Character> map){
+	private void printlnDecoding(char[] encodedInts, HashMap<String,Character> map, int textStartIndex){
 		String encoding = "";
 		String decodedLine = "";
-		for(int i = 0; i<Encodedline.length(); i++){
-			encoding += Encodedline.charAt(i);
+		for(int i = textStartIndex; i<encodedInts.length; i++){
+			encoding += encodedInts[i];
 			if(map.containsKey(encoding)){
-				decodedLine += map.get(encoding);
+				if(map.get(encoding) == Driver.sectionDividerSymbol){
+					System.out.println(decodedLine);
+					decodedLine = "";
+				}
+				else{
+					decodedLine += map.get(encoding);
+				}
 				encoding = "";
 			}
 		}
-		return decodedLine;
-		
+		System.out.println(decodedLine);	
+	}
+	
+	private void writeDecodingToFile(char[] encodedInts, HashMap<String,Character> map, int textStartIndex) throws FileNotFoundException, UnsupportedEncodingException{
+		PrintWriter writer = new PrintWriter("DECODED.txt", "UTF-8");
+		String encoding = "";
+		String decodedLine = "";
+		for(int i = textStartIndex; i<encodedInts.length; i++){
+			encoding += encodedInts[i];
+			if(map.containsKey(encoding)){
+				if(map.get(encoding) == Driver.sectionDividerSymbol){
+					writer.println(decodedLine);
+					decodedLine = "";
+				}
+				else{
+					decodedLine += map.get(encoding);
+				}
+				encoding = "";
+			}
+		}
+		writer.println(decodedLine);	
+		writer.close();
 	}
 	
 	/*public File pickAFile(String defaultFilePath, String fileType){
@@ -165,6 +223,13 @@ public class Loader {
 				
 				//adding new lines to the text
 				if(scanner.hasNextLine()){
+					System.out.println("new line..");
+					if(lettersWithFrequencies.containsKey(Driver.sectionDividerSymbol)){
+						lettersWithFrequencies.get(Driver.sectionDividerSymbol).frequency++;
+					}
+					else{
+						lettersWithFrequencies.put(Driver.sectionDividerSymbol, new Node(1,Driver.sectionDividerSymbol,null, null));
+					}
 				}
 			}
 			scanner.close();

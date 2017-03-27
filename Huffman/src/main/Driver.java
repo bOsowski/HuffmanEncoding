@@ -3,6 +3,19 @@ package main;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+/**
+ * 
+ * @author Crevop
+ * The file padding will be as follows:
+ * 
+			32bits for the file identifier.
+			8 bits for the character in ascii, followed by 5 bits signifying the amount of bits the huffman encoded character will take.
+			End of section would be identified as 2x the same huffman character.
+			Then a new section will begin.
+			
+ * 										
+ * 										
+ */
 public class Driver {
 	final static char sectionDividerSymbol = '~';
 	Loader loader;
